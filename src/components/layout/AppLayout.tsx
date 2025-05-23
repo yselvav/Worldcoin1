@@ -12,7 +12,7 @@ import WorldIDVerification from '@/components/feature/WorldIDVerification';
 import AITextDetector from '@/components/feature/AITextDetector';
 import TextVoting from '@/components/feature/TextVoting';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
-import { useMiniKitReady } from '@worldcoin/minikit-react'; // Updated hook name, removed useMiniKit
+// import { useMiniKitReady } from '@worldcoin/minikit-react'; // Updated hook name, removed useMiniKit
 import { MiniKit } from '@worldcoin/minikit-js'; // Import MiniKit directly
 import { useToast } from "@/hooks/use-toast";
 
@@ -25,14 +25,15 @@ export default function AppLayout() {
   const [worldIdError, setWorldIdError] = useState<string | null>(null);
   const { toast } = useToast();
   
-  const isMiniKitReady = useMiniKitReady(); // Use the corrected hook name
+  // const isMiniKitReady = useMiniKitReady(); // Use the corrected hook name
   const [isLoadingInstallationStatus, setIsLoadingInstallationStatus] = useState(true);
 
 
   useEffect(() => {
-    if (isMiniKitReady) {
-      setIsLoadingInstallationStatus(true);
-      MiniKit.isInstalled() // Use global MiniKit
+    setIsLoadingInstallationStatus(true);
+    // Optional: Add a small delay if direct call causes issues, e.g., setTimeout(() => {
+    if (typeof MiniKit !== 'undefined' && MiniKit.isInstalled) {
+      MiniKit.isInstalled()
         .then((installed: boolean) => {
           setIsWorldAppInstalled(installed);
           if (!installed) {
@@ -41,32 +42,44 @@ export default function AppLayout() {
         })
         .catch((error: any) => {
           console.error("Error checking World App installation status:", error);
-          setIsWorldAppInstalled(false); 
+          setIsWorldAppInstalled(false);
           setWorldIdError("Could not check World App status. Please ensure you are in a compatible environment.");
         })
         .finally(() => {
           setIsLoadingInstallationStatus(false);
         });
-    } else { // MiniKit is not ready yet
-      // Keep loading status true while waiting for readiness or timeout
-      setIsLoadingInstallationStatus(true); 
+    } else {
+      // MiniKit not immediately available
+      console.warn("MiniKit is not available on mount. Retrying in 200ms.");
       const timer = setTimeout(() => {
-        // After 3 seconds, re-check isMiniKitReady.
-        // If still not ready, then consider it failed.
-        if (!isMiniKitReady) { // Check the current value of isMiniKitReady
-            setIsLoadingInstallationStatus(false);
-            setIsWorldAppInstalled(false); 
-            setWorldIdError("Worldcoin integration failed to load or is not available after timeout. Verification may not work.");
-            console.warn("MiniKit still not available after 3s timeout via useMiniKitReady.");
-        }
-        // If it became true in these 3s, the other branch of useEffect will handle it on next render.
-      }, 3000); 
+          if (typeof MiniKit !== 'undefined' && MiniKit.isInstalled) {
+              MiniKit.isInstalled()
+                  .then((installed: boolean) => {
+                      setIsWorldAppInstalled(installed);
+                      if (!installed) {
+                          console.info("World App not detected (after delay). Please open this in the World App for verification.");
+                      }
+                  })
+                  .catch((error: any) => {
+                      console.error("Error checking World App installation status (after delay):", error);
+                      setIsWorldAppInstalled(false);
+                      setWorldIdError("Could not check World App status (after delay).");
+                  })
+                  .finally(() => setIsLoadingInstallationStatus(false));
+          } else {
+              console.error("MiniKit still not available after delay. Worldcoin integration may not work.");
+              setIsWorldAppInstalled(false);
+              setWorldIdError("Worldcoin integration failed to load. Verification may not work.");
+              setIsLoadingInstallationStatus(false);
+          }
+      }, 200); // 200ms delay
       return () => clearTimeout(timer);
     }
-  }, [isMiniKitReady]); // Depend only on isMiniKitReady
+    // }, 100); // Example delay wrapper
+  }, []); // Empty dependency array
 
   const handleVerify = useCallback(async () => {
-    if (!isMiniKitReady || !MiniKit?.verifyAsync) { // Use global MiniKit
+    if (typeof MiniKit === 'undefined' || !MiniKit.verifyAsync) {
       setWorldIdError("Worldcoin integration is not ready. Please try again in a moment.");
       toast({ title: "Error", description: "Worldcoin integration is not ready.", variant: "destructive" });
       return;
@@ -113,16 +126,16 @@ export default function AppLayout() {
       setVerificationStatus(VerificationStatusEnum.FAILED);
       toast({ title: "Verification Error", description: String(errorMessage), variant: "destructive" });
     }
-  }, [isMiniKitReady, isWorldAppInstalled, toast]); // Removed MiniKit from dependencies, WORLDCOIN_ACTION_ID should be stable
+  }, [isWorldAppInstalled, toast]); // WORLDCOIN_ACTION_ID should be stable, MiniKit is global
 
 
-  if (!isMiniKitReady && isLoadingInstallationStatus) {
-    return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 sm:p-8">
-        <LoadingSpinner text="Initializing Worldcoin..." />
-      </div>
-    );
-  }
+  // if (!isMiniKitReady && isLoadingInstallationStatus) {
+  //   return (
+  //     <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 sm:p-8">
+  //       <LoadingSpinner text="Initializing Worldcoin..." />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-4 sm:p-8">
