@@ -139,6 +139,7 @@ export default function AppLayout() {
             isWorldAppInstalled={isWorldAppInstalled}
             verificationError={worldIdError}
             isLoadingInstallationStatus={isLoadingInstallationStatus}
+            verificationStatus={verificationStatus} // Add this line
           />
         ) : (
           <>

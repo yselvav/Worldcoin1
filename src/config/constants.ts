@@ -2,9 +2,10 @@ import type { TextSnippet } from '@/types';
 
 export const APP_TITLE = "AI Text Verifier & Voter";
 
+// Ensure NEXT_PUBLIC_WLD_APP_ID and NEXT_PUBLIC_WLD_ACTION_ID are set in your environment
 // Replace with your actual App ID and Action ID from the Worldcoin Developer Portal
-export const WORLDCOIN_APP_ID = "app_YOUR_APP_ID_HERE"; 
-export const WORLDCOIN_ACTION_ID = "action_YOUR_ACTION_ID_HERE";
+export const WORLDCOIN_APP_ID = process.env.NEXT_PUBLIC_WLD_APP_ID || "app_YOUR_APP_ID_HERE";
+export const WORLDCOIN_ACTION_ID = process.env.NEXT_PUBLIC_WLD_ACTION_ID || "action_YOUR_ACTION_ID_HERE";
 
 export const SAMPLE_TEXTS_FOR_VOTING: TextSnippet[] = [
   {
