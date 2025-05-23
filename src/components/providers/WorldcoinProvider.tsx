@@ -48,21 +48,35 @@ const WorldcoinProvider: React.FC<WorldcoinProviderProps> = ({ children }) => {
   useEffect(() => {
     // Dynamically import MiniKit to ensure it's client-side only
     import('@worldcoin/minikit-js')
-      .then(module => {
-        const Mk = module.default as MiniKitInstance; // Assuming default export
-        if (Mk && typeof Mk.init === 'function') {
-          Mk.init({
+      .then(importedModule => { // This is the Module Namespace Object
+        // The actual MiniKit instance could be the default export,
+        // or the module itself if it's structured that way.
+        let minikitToUse: MiniKitInstance | null = null;
+
+        // Check if importedModule.default has .init (common for ESM default exports or CJS interop)
+        if (importedModule && (importedModule as any).default && typeof (importedModule as any).default.init === 'function') {
+          minikitToUse = (importedModule as any).default as MiniKitInstance;
+          console.log("Using importedModule.default as MiniKit instance.");
+        }
+        // Else, check if importedModule itself has .init (common for UMD or some ESM structures)
+        else if (importedModule && typeof (importedModule as any).init === 'function') {
+          minikitToUse = importedModule as unknown as MiniKitInstance;
+          console.log("Using imported module directly as MiniKit instance.");
+        }
+
+        if (minikitToUse) {
+          minikitToUse.init({
             app_id: WORLDCOIN_APP_ID,
             action: WORLDCOIN_ACTION_ID,
             // signal: "", // Optional: An arbitrary string to associate with the proof
             // wallet_connect_project_id: "YOUR_WALLET_CONNECT_PROJECT_ID" // Optional: Project ID for WalletConnect
           });
-          window.MiniKit = Mk; // Make it globally accessible if needed, or pass via context
-          setMiniKitInstance(Mk);
+          window.MiniKit = minikitToUse; // Make it globally accessible if needed, or pass via context
+          setMiniKitInstance(minikitToUse);
           setIsMiniKitReady(true);
           console.log("Worldcoin MiniKit initialized successfully.");
         } else {
-          console.error("Imported module is not a valid MiniKit instance or init function not found.");
+          console.error("Imported module is not a valid MiniKit instance or init function not found. Module content:", importedModule);
         }
       })
       .catch(error => {
