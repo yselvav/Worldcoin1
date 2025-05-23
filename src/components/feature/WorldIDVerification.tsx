@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from 'lucide-react';
+import type { VerificationStatus } from '@/types';
 
 interface WorldIDVerificationProps {
   onVerify: () => void;
@@ -13,6 +14,7 @@ interface WorldIDVerificationProps {
   isWorldAppInstalled: boolean | null;
   verificationError: string | null;
   isLoadingInstallationStatus: boolean;
+  verificationStatus: VerificationStatus; // Add this line
 }
 
 const WorldIDVerification: React.FC<WorldIDVerificationProps> = ({
@@ -21,6 +23,7 @@ const WorldIDVerification: React.FC<WorldIDVerificationProps> = ({
   isWorldAppInstalled,
   verificationError,
   isLoadingInstallationStatus,
+  verificationStatus,
 }) => {
   const showLoadingState = isVerifying || isLoadingInstallationStatus;
 
@@ -74,7 +77,7 @@ const WorldIDVerification: React.FC<WorldIDVerificationProps> = ({
             Please open this application within the World App to enable verification. If you don't have World App, you can download it from the app store.
           </p>
         )}
-        {!isLoadingInstallationStatus && isWorldAppInstalled === true && !isVerifying && verificationStatus !== "VERIFIED" && (
+        {!isLoadingInstallationStatus && isWorldAppInstalled === true && !isVerifying && (
           <p>Ready to verify. Click the button above.</p>
         )}
       </div>
