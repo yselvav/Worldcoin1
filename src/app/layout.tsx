@@ -26,8 +26,8 @@ export default function RootLayout({
 }>) {
   // Apply dark class globally if preferred, or manage via theme toggle
   return (
-    <html lang="en" className="dark">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" className="dark" suppressHydrationWarning={true}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning={true}>
         <WorldcoinProvider>
           {children}
         </WorldcoinProvider>
