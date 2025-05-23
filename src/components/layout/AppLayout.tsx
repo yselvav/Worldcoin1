@@ -1,8 +1,9 @@
+
 'use client';
 
-import React, { useState, useEffect, useCallback, useContext } from 'react';
-import type { VerificationStatus, AITextAnalysisResult, VerifyResponse as WorldIDVerifyResponse } from '@/types';
-import { VerificationStatus as VerificationStatusEnum, TextClassification } from '@/types';
+import React, { useState, useEffect, useCallback } from 'react';
+import type { VerificationStatus, VerifyResponse as WorldIDVerifyResponse } from '@/types';
+import { VerificationStatus as VerificationStatusEnum } from '@/types';
 import { WORLDCOIN_ACTION_ID, APP_TITLE, MINIKIT_SUCCESS_STATUS } from '@/config/constants';
 import { analyzeTextAction } from '@/app/actions';
 
@@ -11,12 +12,12 @@ import WorldIDVerification from '@/components/feature/WorldIDVerification';
 import AITextDetector from '@/components/feature/AITextDetector';
 import TextVoting from '@/components/feature/TextVoting';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
-import { MiniKitContext }from '@/components/providers/WorldcoinProvider';
+import { useMiniKitReady } from '@worldcoin/minikit-react'; // Updated hook name, removed useMiniKit
+import { MiniKit } from '@worldcoin/minikit-js'; // Import MiniKit directly
 import { useToast } from "@/hooks/use-toast";
 
-// Helper to check if API_KEY might be missing for Gemini (conceptual, as Genkit hides this)
-// In a real scenario with client-side Gemini, you'd check process.env.NEXT_PUBLIC_GEMINI_API_KEY
-const isGeminiConfigured = true; // Assume Genkit handles its config, so always true from client's PoV
+// Assume Genkit handles its config, so always true from client's PoV for Gemini availability
+const isGeminiConfigured = true; 
 
 export default function AppLayout() {
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatus>(VerificationStatusEnum.UNVERIFIED);
@@ -24,14 +25,14 @@ export default function AppLayout() {
   const [worldIdError, setWorldIdError] = useState<string | null>(null);
   const { toast } = useToast();
   
-  const { isReady: isMiniKitReady, miniKit } = useContext(MiniKitContext);
+  const isMiniKitReady = useMiniKitReady(); // Use the corrected hook name
   const [isLoadingInstallationStatus, setIsLoadingInstallationStatus] = useState(true);
 
 
   useEffect(() => {
-    if (isMiniKitReady && miniKit) {
+    if (isMiniKitReady) {
       setIsLoadingInstallationStatus(true);
-      miniKit.isInstalled()
+      MiniKit.isInstalled() // Use global MiniKit
         .then((installed: boolean) => {
           setIsWorldAppInstalled(installed);
           if (!installed) {
@@ -40,28 +41,32 @@ export default function AppLayout() {
         })
         .catch((error: any) => {
           console.error("Error checking World App installation status:", error);
-          setIsWorldAppInstalled(false); // Assume not installed on error
+          setIsWorldAppInstalled(false); 
           setWorldIdError("Could not check World App status. Please ensure you are in a compatible environment.");
         })
         .finally(() => {
           setIsLoadingInstallationStatus(false);
         });
-    } else if (!isMiniKitReady && !miniKit){
-      // MiniKit might still be loading or failed to load
-      // We can set a timeout to give it a chance, or handle this state appropriately
+    } else { // MiniKit is not ready yet
+      // Keep loading status true while waiting for readiness or timeout
+      setIsLoadingInstallationStatus(true); 
       const timer = setTimeout(() => {
-        if (!miniKit) { // Check again after a delay
+        // After 3 seconds, re-check isMiniKitReady.
+        // If still not ready, then consider it failed.
+        if (!isMiniKitReady) { // Check the current value of isMiniKitReady
             setIsLoadingInstallationStatus(false);
-            setIsWorldAppInstalled(false); // Assume not installed if MiniKit failed
-            setWorldIdError("Worldcoin integration failed to load. Verification may not be available.");
+            setIsWorldAppInstalled(false); 
+            setWorldIdError("Worldcoin integration failed to load or is not available after timeout. Verification may not work.");
+            console.warn("MiniKit still not available after 3s timeout via useMiniKitReady.");
         }
-      }, 3000); // Wait 3 seconds for MiniKit to potentially load
+        // If it became true in these 3s, the other branch of useEffect will handle it on next render.
+      }, 3000); 
       return () => clearTimeout(timer);
     }
-  }, [isMiniKitReady, miniKit]);
+  }, [isMiniKitReady]); // Depend only on isMiniKitReady
 
   const handleVerify = useCallback(async () => {
-    if (!miniKit) {
+    if (!isMiniKitReady || !MiniKit?.verifyAsync) { // Use global MiniKit
       setWorldIdError("Worldcoin integration is not ready. Please try again in a moment.");
       toast({ title: "Error", description: "Worldcoin integration is not ready.", variant: "destructive" });
       return;
@@ -76,15 +81,12 @@ export default function AppLayout() {
     setWorldIdError(null);
 
     try {
-      // The signal should ideally be a unique, user-specific, and session-specific value.
-      // For this example, using a timestamp or a random string.
-      // In a real app, this might be tied to the user's session or a specific action.
-      const signal = `user_signal_${Date.now()}`; // Example signal
+      const signal = `user_signal_${Date.now()}`; 
       console.log("Requesting verification with action ID:", WORLDCOIN_ACTION_ID, "and signal:", signal);
 
-      const result = await miniKit.verifyAsync({
-        action: WORLDCOIN_ACTION_ID,
-        signal: signal, // An arbitrary string to associate with the proof, helps prevent replay attacks if verified server-side
+      const result = await MiniKit.verifyAsync({ // Use global MiniKit
+        action: WORLDCOIN_ACTION_ID, 
+        signal: signal, 
       });
       
       console.log("World ID verification attempt result:", result);
@@ -95,29 +97,23 @@ export default function AppLayout() {
         console.log("Merkle Root:", merkle_root);
         console.log("Nullifier Hash:", nullifier_hash);
         console.log("Proof:", proof);
-        // IMPORTANT: In a real application, you MUST send the `result.finalPayload`
-        // (merkle_root, nullifier_hash, proof) to your backend server.
-        // Your backend server then verifies this proof with Worldcoin's servers
-        // using your Developer Portal App ID and Action ID.
-        // Only after successful backend verification should you trust the user's claim.
-        // For this frontend-only example, we simulate success.
         setVerificationStatus(VerificationStatusEnum.VERIFIED);
         toast({ title: "Success", description: "World ID Verified!" });
       } else {
-        const errorDetail = result?.detail || "Unknown verification error.";
+        const errorDetail = result?.detail || result?.error_code || "Unknown verification error.";
         console.error("World ID Verification Failed:", errorDetail);
         setWorldIdError(`Verification failed: ${errorDetail}`);
         setVerificationStatus(VerificationStatusEnum.FAILED);
-        toast({ title: "Verification Failed", description: errorDetail, variant: "destructive" });
+        toast({ title: "Verification Failed", description: String(errorDetail), variant: "destructive" });
       }
     } catch (error: any) {
       console.error("Exception during World ID verification:", error);
-      const errorMessage = error.message || "An unexpected error occurred during verification.";
+      const errorMessage = error.message || error.detail || error.error_code || "An unexpected error occurred during verification.";
       setWorldIdError(`Verification error: ${errorMessage}`);
       setVerificationStatus(VerificationStatusEnum.FAILED);
-      toast({ title: "Verification Error", description: errorMessage, variant: "destructive" });
+      toast({ title: "Verification Error", description: String(errorMessage), variant: "destructive" });
     }
-  }, [miniKit, isWorldAppInstalled, toast]);
+  }, [isMiniKitReady, isWorldAppInstalled, toast]); // Removed MiniKit from dependencies, WORLDCOIN_ACTION_ID should be stable
 
 
   if (!isMiniKitReady && isLoadingInstallationStatus) {
