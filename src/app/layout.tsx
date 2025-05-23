@@ -24,8 +24,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Apply dark class globally if preferred, or manage via theme toggle
   return (
-    <html lang="en" className="dark"> {/* Apply dark class globally if preferred, or manage via theme toggle */}
+    <html lang="en" className="dark">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <WorldcoinProvider>
           {children}
