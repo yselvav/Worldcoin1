@@ -3,7 +3,7 @@
 
 import React, { type ReactNode } from 'react';
 import { MiniKitProvider as OfficialMiniKitProvider } from '@worldcoin/minikit-js/minikit-provider';
-import { WORLDCOIN_APP_ID, WORLDCOIN_ACTION_ID } from '@/config/constants';
+import { WORLDCOIN_APP_ID } from '@/config/constants';
 
 interface WorldcoinProviderProps {
   children: ReactNode;
