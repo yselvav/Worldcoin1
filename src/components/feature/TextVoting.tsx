@@ -54,7 +54,7 @@ const TextVoting: React.FC = () => {
   }, [currentSnippet, loadNextSnippet, currentIndex, toast]);
 
   return (
-    <section aria-labelledby="text-voting-heading" className="w-full p-6 bg-card rounded-lg shadow-xl">
+    <section aria-labelledby="text-voting-heading" className="w-full p-6 bg-card/70 rounded-lg shadow-xl backdrop-blur">
       <h2 id="text-voting-heading" className="text-2xl font-semibold mb-6 text-center text-primary">
         Is this text AI or Human?
       </h2>

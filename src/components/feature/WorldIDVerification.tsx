@@ -25,13 +25,13 @@ const WorldIDVerification: React.FC<WorldIDVerificationProps> = ({
   const showLoadingState = isVerifying || isLoadingInstallationStatus;
 
   return (
-    <section aria-labelledby="world-id-verification-heading" className="w-full flex flex-col items-center text-center p-6 bg-card rounded-lg shadow-xl">
-       <Image 
-        src="https://placehold.co/100x100.png" // Placeholder for Worldcoin Orb
-        alt="Worldcoin Orb" 
-        width={80} 
-        height={80} 
-        className="mb-6 rounded-full"
+    <section aria-labelledby="world-id-verification-heading" className="w-full flex flex-col items-center text-center p-6 bg-card/70 rounded-lg shadow-xl backdrop-blur">
+      <Image
+        src="https://worldcoin.org/favicon.ico"
+        alt="Worldcoin Orb"
+        width={80}
+        height={80}
+        className="mb-6 rounded-full border border-border"
         data-ai-hint="orb sphere"
       />
       <h2 id="world-id-verification-heading" className="text-2xl font-semibold mb-4 text-primary">

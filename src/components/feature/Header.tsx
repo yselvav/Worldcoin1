@@ -49,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({ verificationStatus, isWorldAppInstalled
 
 
   return (
-    <header className="w-full max-w-3xl text-center p-4 rounded-lg shadow-xl bg-card">
+    <header className="w-full max-w-3xl text-center p-4 rounded-lg shadow-xl bg-card/70 backdrop-blur border border-border">
       <div className="flex items-center justify-center mb-4">
         <Image 
             src="https://worldcoin.org/favicon.ico" 
@@ -59,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({ verificationStatus, isWorldAppInstalled
             className="mr-3 rounded-full"
             data-ai-hint="logo crypto" 
         />
-        <h1 className="text-3xl sm:text-4xl font-bold text-primary">{APP_TITLE}</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary via-accent to-primary text-transparent bg-clip-text">{APP_TITLE}</h1>
       </div>
       
       <div className={`flex items-center justify-center text-lg ${statusColorClass} mb-2`}>
