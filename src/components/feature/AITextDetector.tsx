@@ -9,6 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { AITextAnalysisResult, AnalyzeTextFunction } from '@/types';
 import { TextClassification } from '@/types';
 import { Terminal, FileText, Brain, User } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface AITextDetectorProps {
   analyzeText: AnalyzeTextFunction;

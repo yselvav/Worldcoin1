@@ -74,7 +74,7 @@ const WorldIDVerification: React.FC<WorldIDVerificationProps> = ({
             Please open this application within the World App to enable verification. If you don't have World App, you can download it from the app store.
           </p>
         )}
-        {!isLoadingInstallationStatus && isWorldAppInstalled === true && !isVerifying && verificationStatus !== "VERIFIED" && (
+        {!isLoadingInstallationStatus && isWorldAppInstalled === true && !isVerifying && (
           <p>Ready to verify. Click the button above.</p>
         )}
       </div>
