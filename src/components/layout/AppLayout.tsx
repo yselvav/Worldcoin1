@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -28,7 +27,6 @@ export default function AppLayout() {
   const { isInstalled: isMiniKitReady } = useMiniKit();
   const [isLoadingInstallationStatus, setIsLoadingInstallationStatus] = useState(true);
 
-
   useEffect(() => {
     if (isMiniKitReady) {
       setIsLoadingInstallationStatus(true);
@@ -46,22 +44,18 @@ export default function AppLayout() {
         setIsLoadingInstallationStatus(false);
       }
     } else { // MiniKit is not ready yet
-      // Keep loading status true while waiting for readiness or timeout
       setIsLoadingInstallationStatus(true); 
       const timer = setTimeout(() => {
-        // After 3 seconds, re-check isMiniKitReady.
-        // If still not ready, then consider it failed.
-        if (!isMiniKitReady) { // Check the current value of isMiniKitReady
+        if (!isMiniKitReady) {
             setIsLoadingInstallationStatus(false);
             setIsWorldAppInstalled(false); 
             setWorldIdError("Worldcoin integration failed to load or is not available after timeout. Verification may not work.");
             console.warn("MiniKit still not available after 3s timeout via useMiniKit hook.");
         }
-        // If it became true in these 3s, the other branch of useEffect will handle it on next render.
       }, 3000); 
       return () => clearTimeout(timer);
     }
-  }, [isMiniKitReady]); // Depend only on isMiniKitReady
+  }, [isMiniKitReady]);
 
   const handleVerify = useCallback(async () => {
     if (!isMiniKitReady || !MiniKit?.commandsAsync?.verify) {
@@ -114,8 +108,7 @@ export default function AppLayout() {
       setVerificationStatus(VerificationStatusEnum.FAILED);
       toast({ title: "Verification Error", description: String(errorMessage), variant: "destructive" });
     }
-  }, [isMiniKitReady, isWorldAppInstalled, toast]); // WORLDCOIN_ACTION_ID should be stable
-
+  }, [isMiniKitReady, isWorldAppInstalled, toast]);
 
   if (!isMiniKitReady && isLoadingInstallationStatus) {
     return (
