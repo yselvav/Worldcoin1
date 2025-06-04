@@ -10,15 +10,12 @@ interface WorldcoinProviderProps {
 }
 
 const WorldcoinProvider: React.FC<WorldcoinProviderProps> = ({ children }) => {
-  const miniKitOptions = {
-    app_id: WORLDCOIN_APP_ID,
-    action: WORLDCOIN_ACTION_ID,
-    // signal: "", // Optional: An arbitrary string to associate with the proof, usually set per-action
-    // wallet_connect_project_id: "YOUR_WALLET_CONNECT_PROJECT_ID" // Optional: Project ID for WalletConnect
+  const miniKitProps = {
+    appId: WORLDCOIN_APP_ID,
   };
 
   return (
-    <OfficialMiniKitProvider options={miniKitOptions}>
+    <OfficialMiniKitProvider props={miniKitProps}>
       {children}
     </OfficialMiniKitProvider>
   );
