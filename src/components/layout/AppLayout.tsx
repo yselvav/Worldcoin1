@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -12,7 +11,7 @@ import WorldIDVerification from '@/components/feature/WorldIDVerification';
 import AITextDetector from '@/components/feature/AITextDetector';
 import TextVoting from '@/components/feature/TextVoting';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
-import { MiniKit, VerificationLevel } from '@worldcoin/minikit-js';
+import { MiniKit, VerificationLevel } from '@worldcoin/minikit-js';  // <-- Keep VerificationLevel if needed
 import { useMiniKit } from '@worldcoin/minikit-js/minikit-provider';
 import { useToast } from "@/hooks/use-toast";
 
@@ -27,7 +26,6 @@ export default function AppLayout() {
   
   const { isInstalled: isMiniKitReady } = useMiniKit();
   const [isLoadingInstallationStatus, setIsLoadingInstallationStatus] = useState(true);
-
 
   useEffect(() => {
     if (isMiniKitReady) {
@@ -46,22 +44,18 @@ export default function AppLayout() {
         setIsLoadingInstallationStatus(false);
       }
     } else { // MiniKit is not ready yet
-      // Keep loading status true while waiting for readiness or timeout
       setIsLoadingInstallationStatus(true); 
       const timer = setTimeout(() => {
-        // After 3 seconds, re-check isMiniKitReady.
-        // If still not ready, then consider it failed.
-        if (!isMiniKitReady) { // Check the current value of isMiniKitReady
+        if (!isMiniKitReady) {
             setIsLoadingInstallationStatus(false);
             setIsWorldAppInstalled(false); 
             setWorldIdError("Worldcoin integration failed to load or is not available after timeout. Verification may not work.");
             console.warn("MiniKit still not available after 3s timeout via useMiniKit hook.");
         }
-        // If it became true in these 3s, the other branch of useEffect will handle it on next render.
       }, 3000); 
       return () => clearTimeout(timer);
     }
-  }, [isMiniKitReady]); // Depend only on isMiniKitReady
+  }, [isMiniKitReady]);
 
   const handleVerify = useCallback(async () => {
     if (!isMiniKitReady || !MiniKit?.commandsAsync?.verify) {
@@ -85,7 +79,7 @@ export default function AppLayout() {
       const result = await MiniKit.commandsAsync.verify({
         action: WORLDCOIN_ACTION_ID,
         signal: signal,
-        verification_level: VerificationLevel.Orb,
+        verification_level: VerificationLevel.Orb, // <--- Only if needed
       });
 
       console.log("World ID verification attempt result:", result);
@@ -114,8 +108,7 @@ export default function AppLayout() {
       setVerificationStatus(VerificationStatusEnum.FAILED);
       toast({ title: "Verification Error", description: String(errorMessage), variant: "destructive" });
     }
-  }, [isMiniKitReady, isWorldAppInstalled, toast]); // WORLDCOIN_ACTION_ID should be stable
-
+  }, [isMiniKitReady, isWorldAppInstalled, toast]);
 
   if (!isMiniKitReady && isLoadingInstallationStatus) {
     return (
