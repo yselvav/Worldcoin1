@@ -25,7 +25,7 @@ export enum VerificationStatus {
 // This type will be used for the server action
 export type AnalyzeTextFunction = (textToAnalyze: string) => Promise<AITextAnalysisResult>;
 
-// For World ID Kit verifyAsync response
+// For MiniKit.commandsAsync.verify response
 export interface VerifyResponse {
   merkle_root: string;
   nullifier_hash: string;
