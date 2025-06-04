@@ -12,7 +12,7 @@ import WorldIDVerification from '@/components/feature/WorldIDVerification';
 import AITextDetector from '@/components/feature/AITextDetector';
 import TextVoting from '@/components/feature/TextVoting';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
-import { MiniKit } from '@worldcoin/minikit-js';
+import { MiniKit, VerificationLevel } from '@worldcoin/minikit-js';
 import { useMiniKit } from '@worldcoin/minikit-js/minikit-provider';
 import { useToast } from "@/hooks/use-toast";
 
@@ -85,6 +85,7 @@ export default function AppLayout() {
       const result = await MiniKit.commandsAsync.verify({
         action: WORLDCOIN_ACTION_ID,
         signal: signal,
+        verification_level: VerificationLevel.Orb,
       });
 
       console.log("World ID verification attempt result:", result);
@@ -157,7 +158,7 @@ export default function AppLayout() {
 
       <footer className="w-full max-w-3xl mt-12 pt-8 border-t border-border text-center text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} {APP_TITLE}. All rights reserved.</p>
-        <p>Powered by Worldcoin & Google Gemini</p>
+        <p>Powered by Worldcoin</p>
       </footer>
     </div>
   );
