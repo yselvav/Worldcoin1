@@ -67,7 +67,7 @@ const AITextDetector: React.FC<AITextDetectorProps> = ({ analyzeText }) => {
 
 
   return (
-    <section aria-labelledby="ai-text-detector-heading" className="w-full mb-12 p-6 bg-card rounded-lg shadow-xl">
+    <section aria-labelledby="ai-text-detector-heading" className="w-full mb-12 p-6 bg-card/70 rounded-lg shadow-xl backdrop-blur">
       <h2 id="ai-text-detector-heading" className="text-2xl font-semibold mb-6 text-center text-primary">
         AI Text Detector
       </h2>

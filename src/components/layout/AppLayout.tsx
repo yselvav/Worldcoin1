@@ -118,14 +118,14 @@ export default function AppLayout() {
 
   if (!isMiniKitReady && isLoadingInstallationStatus) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 sm:p-8">
+      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 sm:p-8 bg-[radial-gradient(circle_at_top_right,_hsl(var(--accent)_/_20%),_transparent_70%)]">
         <LoadingSpinner text="Initializing Worldcoin..." />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-4 sm:p-8">
+    <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-4 sm:p-8 bg-[radial-gradient(circle_at_bottom_left,_hsl(var(--accent)_/_15%),_transparent_70%)]">
       <Header
         verificationStatus={verificationStatus}
         isWorldAppInstalled={isWorldAppInstalled}
